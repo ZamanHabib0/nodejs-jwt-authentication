@@ -15,6 +15,9 @@ module.exports = {
 
     nodemailEmail: process.env.email,
     nodemailPassword: process.env.password,
+
+    GOOGLECLIENTSECRET : process.env.GOOGLE_CLIENT_SECRET,
+    GOOGLECLIENTID : process.env.GOOGLE_CLIENT_ID
     
 
 

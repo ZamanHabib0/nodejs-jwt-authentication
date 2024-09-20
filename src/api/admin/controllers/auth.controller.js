@@ -16,7 +16,7 @@ const signIn = async (req, res, next) => {
         if (!payload.email || !payload.password) {
             return globalServices.returnResponse(
                 res,
-                400,
+                201,
                 true,
                 'Email and password are required',
                 {}
@@ -28,8 +28,8 @@ const signIn = async (req, res, next) => {
         if (!user) {
             return globalServices.returnResponse(
                 res,
-                401,
-                false,
+                201,
+                true,
                 'User not found',
                 {}
             );
@@ -55,8 +55,8 @@ const signIn = async (req, res, next) => {
         } else {
             return globalServices.returnResponse(
                 res,
-                401,
-                false,
+                201,
+                true,
                 'Incorrect Password',
                 {}
             );
@@ -104,8 +104,8 @@ const signUp = async (req, res, next) => {
             if (!payload.email || !payload.password || !payload.userName) {
                 return globalServices.returnResponse(
                     res,
-                    400,
-                    false,
+                    201,
+                    true,
                     'Essential fields (email, password, username) are missing',
                     {}
                 );
@@ -119,7 +119,7 @@ const signUp = async (req, res, next) => {
             if (userExist) {
                 return globalServices.returnResponse(
                     res,
-                    200,
+                    201,
                     true,
                     'User already exists',
                     {}
@@ -182,7 +182,7 @@ const resetPassword = async (req, res, next) => {
         if (!email || !email) {
             return globalServices.returnResponse(
                 res,
-                400,
+                201,
                 true,
                 'email and New password are required',
                 {}
@@ -195,7 +195,7 @@ const resetPassword = async (req, res, next) => {
         if (!user) {
             return globalServices.returnResponse(
                 res,
-                404,
+                201,
                 true,
                 'User not found',
                 {}
@@ -260,7 +260,7 @@ const verifyOtp = async (req, res, next) => {
             } else {
                 return globalServices.returnResponse(
                     res,
-                    401,
+                    201,
                     true,
                     'OTP not matched',
                     {}
@@ -270,8 +270,8 @@ const verifyOtp = async (req, res, next) => {
         } else {
             return globalServices.returnResponse(
                 res,
-                200,
-                false,
+                201,
+                true,
                 'OTP is required',
                 {}
             );
@@ -283,7 +283,7 @@ const verifyOtp = async (req, res, next) => {
 };
 
 const resendOtp = async (req, res) => {
-    // try {
+    try {
         const { email } = req.body;
         const otp = randomstring.generate({ length: 4, charset: 'numeric' });
         // const otp = '1234';
@@ -295,7 +295,7 @@ const resendOtp = async (req, res) => {
         if (!user) {
             return globalServices.returnResponse(
                 res,
-                401,
+                201,
                 false,
                 'User not Found',
                 {}
@@ -323,11 +323,58 @@ const resendOtp = async (req, res) => {
             'OTP send sucessfully',
             {}
         );
-        // return res.json({ success: true, message: 'OTP send sucessfully' });
-    // } catch (error) {
-    //     res.status(500).json(error);
-    // }
+        return res.json({ success: true, message: 'OTP send sucessfully' });
+    } catch (error) {
+        res.status(500).json(error);
+    }
 };
+
+
+
+const googleLogin = async (req, res, next) => {
+    try {
+        let payload = req.body;
+        let email = payload.email;
+        let user = await models.authAdmin.findOne({ email });
+
+        if (!user) {
+            return globalServices.returnResponse(
+                res,
+                201,
+                true,
+                'User not found',
+                {}
+            );
+        }
+
+       
+            let accessToken = user.token();
+
+            let data = {
+                _id: user._id,
+                userName: user.userName,
+                email: user.email,
+                authToken: accessToken
+            }
+
+            return globalServices.returnResponse(
+                res,
+                200,
+                false,
+                'You have logged in successfully',
+                data
+            );
+
+    } catch (error) {
+        return globalServices.returnResponse(
+            res,
+            500,
+            true,
+            'Internal server error',
+            {}
+        );
+    }
+}
 
 
 
@@ -339,5 +386,6 @@ module.exports = {
     signUp,
     resetPassword,
     verifyOtp,
-    resendOtp
+    resendOtp,
+    googleLogin
 }
