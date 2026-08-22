@@ -29,6 +29,23 @@
   ],
   "item": [
     {
+      "name": "Server Health Check (Base URL)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{baseUrl}}/",
+          "host": [
+            "{{baseUrl}}"
+          ],
+          "path": [
+            ""
+          ]
+        },
+        "description": "Hit the server Base URL or /health to check if the server is up and returns a 200 OK status."
+      }
+    },
+    {
       "name": "Auth",
       "item": [
         {

@@ -5,7 +5,8 @@ const cors = require('cors');
 const compression = require('compression');
 const session = require('express-session');
 const passport = require('passport');
-const adminRoutes = require('../api/admin/routes/index.js'); // Adjust route path if needed
+const adminRoutes = require('../api/admin/routes/index.js');
+const globalServices = require('../services/globalService.js');
 
 /**
  * Express instance
@@ -28,7 +29,7 @@ app.use(methodOverride());
 
 // Set up CORS
 var corsOptions = {
-  origin: '*', // Replace '*' with specific origins if necessary for security
+  origin: '*',
   optionsSuccessStatus: 200
 };
 app.use(cors(corsOptions));
@@ -44,12 +45,29 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use("/admin", adminRoutes); 
-
-// Default route (root path)
-app.get('/', (req, res, next) => {
-  res.send("Server is running");
+// Server Root & Health Check Test Routes
+app.get(['/', '/health'], (req, res) => {
+  return globalServices.returnResponse(
+    res,
+    200,
+    false,
+    'Server is running smoothly! 🚀',
+    {
+      name: 'Node.js JWT Authentication, Blog & Contact API',
+      status: 'online',
+      timestamp: new Date().toISOString(),
+      uptime: `${process.uptime().toFixed(2)}s`,
+      routes: {
+        auth: '/admin/auth',
+        blogs: '/admin/blogs',
+        contacts: '/admin/contacts'
+      }
+    }
+  );
 });
+
+// Admin Routes
+app.use("/admin", adminRoutes);
 
 // Export the Express app for use in other files (e.g., index.js)
 module.exports = app;
